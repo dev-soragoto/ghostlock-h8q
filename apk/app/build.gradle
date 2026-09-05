@@ -6,6 +6,15 @@ android {
     namespace 'dev.ghostlock.h8q'
     compileSdk 34
 
+    signingConfigs {
+        testkey {
+            storeFile rootProject.file('key.jks')
+            storePassword 'android'
+            keyAlias 'testkey'
+            keyPassword 'android'
+        }
+    }
+
     defaultConfig {
         applicationId 'dev.ghostlock.h8q'
         minSdk 30
@@ -30,7 +39,11 @@ android {
 
     buildTypes {
         debug {
+            signingConfig signingConfigs.testkey
             // Ship a debuggable, unminified build for on-device testing.
+        }
+        release {
+            signingConfig signingConfigs.testkey
         }
     }
 }

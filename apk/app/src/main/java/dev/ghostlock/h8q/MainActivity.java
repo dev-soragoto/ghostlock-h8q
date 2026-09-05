@@ -19,7 +19,8 @@ import java.util.concurrent.Executors;
 import rikka.shizuku.Shizuku;
 
 /**
- * One-button harness for the GhostLock (CVE-2026-43499) chain on SM-F971U.
+ * One-button harness for the GhostLock (CVE-2026-43499) chain on Zfold8 
+ * family.
  *
  * It reproduces the manual adb procedure entirely on-device by borrowing a
  * shell-uid process from Shizuku:
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KSUD = TMP + "ksud";
 
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private final ExecutorService logWorker = Executors.newSingleThreadExecutor();
     private final Handler ui = new Handler(Looper.getMainLooper());
 
     private TextView logView;
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Shizuku.removeRequestPermissionResultListener(permListener);
         worker.shutdownNow();
+        logWorker.shutdownNow();
     }
 
     private void onRun() {
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Tail the GHOSTLOCK logcat tag on a background thread. */
     private void startLogcatTail() {
-        worker.execute(() -> {
+        logWorker.execute(() -> {
             try {
                 ShizukuController.exec(new String[]{"logcat", "-c"}, null, null).waitFor();
                 Process lc = ShizukuController.exec(

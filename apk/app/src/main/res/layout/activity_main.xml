@@ -17,7 +17,7 @@
         android:id="@+id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Target: SM-F971U (h8q)"
+        android:text="Target: h8q"
         android:textSize="13sp"
         android:paddingBottom="12dp" />
 
