@@ -1,0 +1,123 @@
+From 7190079f85cd661477bd7149720f088044ca4d1b Mon Sep 17 00:00:00 2001
+From: soragoto <soragoto@soragoto.io>
+Date: Mon, 7 Sep 2026 17:09:53 +0800
+Subject: [PATCH] aosp test key
+
+---
+ kernel/manager/apk_sign.c |  11 +++++++++--
+ manager/.gitignore        |   1 -
+ manager/gradle.properties |   6 ++++++
+ manager/key.jks           | Bin 0 -> 2547 bytes
+ 4 files changed, 15 insertions(+), 3 deletions(-)
+ create mode 100644 manager/key.jks
+
+diff --git a/kernel/manager/apk_sign.c b/kernel/manager/apk_sign.c
+index f0e1673f..a512f6a7 100644
+--- a/kernel/manager/apk_sign.c
++++ b/kernel/manager/apk_sign.c
+@@ -92,18 +92,25 @@ static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset, u
+     if (*size4 == expected_size) {
+         *offset += *size4;
+ 
+-#define CERT_MAX_LENGTH 1024
+-        char cert[CERT_MAX_LENGTH];
++#define CERT_MAX_LENGTH 4096
++        char *cert;
+         if (*size4 > CERT_MAX_LENGTH) {
+             pr_info("cert length overlimit\n");
+             return false;
+         }
++        cert = kmalloc(*size4, GFP_KERNEL);
++        if (!cert) {
++            pr_info("cert alloc failed\n");
++            return false;
++        }
+         kernel_read(fp, cert, *size4, pos);
+         unsigned char digest[SHA256_DIGEST_SIZE];
+         if (IS_ERR(ksu_sha256(cert, *size4, digest))) {
+             pr_info("sha256 error\n");
++            kfree(cert);
+             return false;
+         }
++        kfree(cert);
+ 
+         char hash_str[SHA256_DIGEST_SIZE * 2 + 1];
+         hash_str[SHA256_DIGEST_SIZE * 2] = '\0';
+diff --git a/manager/.gitignore b/manager/.gitignore
+index a595ddf7..16a10c11 100644
+--- a/manager/.gitignore
++++ b/manager/.gitignore
+@@ -7,4 +7,3 @@ build
+ captures
+ .cxx
+ local.properties
+-key.jks
+diff --git a/manager/gradle.properties b/manager/gradle.properties
+index 2180ea37..91f0ef14 100644
+--- a/manager/gradle.properties
++++ b/manager/gradle.properties
+@@ -7,3 +7,9 @@ org.gradle.parallel=true
+ org.gradle.vfs.watch=true
+ android.r8.maxWorkers=4
+ android.native.buildOutput=verbose
++
++# Reproducible local AOSP test signing (manager/key.jks is ignored by git).
++KEYSTORE_FILE=key.jks
++KEYSTORE_PASSWORD=android
++KEY_ALIAS=testkey
++KEY_PASSWORD=android
+diff --git a/manager/key.jks b/manager/key.jks
+new file mode 100644
+index 0000000000000000000000000000000000000000..80d628e227184e00b071bc5da9fc97a783c838cf
+GIT binary patch
+literal 2547
+zcmd6n`9IYA9>?cvW^5VR8JWl$hQ9VuwvdKw*@=U)FN0yShM6MAcC#g<WE~L_8f3^C
+zp``0Db|Kr5rART3&OP_u9*=wffb+xq@p-(SpU>y<cz-^R*ZW2Po&Gxn0%15R;Ll<T
+zaSsmhbq_z%1%B1LgAfSp5G29AgKUhfvWx%>kYV5i02m3j96V7W$^j=eN?EvEIN774
+zzaXTzi?=GiEx6q^Unh`n)2}<{PmmnQjw9<X*s}4W^cJK!;cBxkq5YOs68;+p&)=-R
+z&-_+@?e=9C?Xzk8w>r;FclQ-biM$w*$<=qn2NKTB7~g)ZoO%{HYCoO`h&+nWJ!N+|
+z$}Z|CXt5L>Fa_DSyn&Q4YaQ{b4<}VDbNPJriLXUV4OI>yxujF}qJkExgxjFLZ5Kb}
+zP#P@rTzN~cBn+G0W$#0S#>i~LHL1s3H%7t?<c^hxyvIxhU9r!~D?PKfGD5x_-f>M<
+z@I(~*LE}8GnAq&D$6C-Jc0Z|f5Zm%vyrOIVSpm~iUXHlA0E_GNE^aSNMfJQIe5TEX
+zrpeo^6>-wqI`Y-QHWAxjY>qcOKxtMkf(X-f{CSQDPt)X?FqJHQ_iy`dVNwA`yKGp)
+z3NspOXFqS^qPs+6M|)gYK+MQ3kLQuAB#-)xv0@pLU7o8*s+;*8HVM5YUu2&fU&$-A
+z2w%2@&KJ6wy?UK4=_&^|?x_m8F<gUn1W%&{W4~xVd1KXMrE~qRFx2*8QuJNtK7-?*
+zwbZ-avmB$xc}#0i`PldkWoHZ4523Vm>~c@i#!cfji<F1Cm^g8i>`M4n8W`MUgqa$i
+zd3D2N)cf5cQ!A$B-aB-`;ZpYZP2Yi(?+7tAW_pS&6fsp@rZ}sTAU3=p^}O?h>$m_x
+zm0Gkr>&f0!P0npdpB|lA8H&k2mwdk^TZ`25IxO}8L2Ppt7sQlYqzN^~mTIlR88xW>
+zGX2R1nYC+>q-0RbH?~oTy6_-=MRBe$(8ij_=*s=p%-VVu+DDizD_S<yvZh?KK{sFe
+zK!d~ayQksnz$(vWR-VgaLHjDX)|(|`qbY3~aklWG=3pGfOXh9{#Q+NvDJ(AamlK{1
+z-|KkRxpT8LMoB$r$Lsw(V^N+nxP-)M5_rix?A5eqW;Icg`N8{%2~a0WP&Z}WK-Z+?
+zqJi1QVB?TH&pv(XMb@<Dch%B~8R3*CMsxhIY?yY$nm0<}B%Azxb`+(!%0Ap_@2Sbu
+zcA;#maAY!D_<4zFrmI6P*7rWKj)`kyhfLh*oE}_d`iZyatx+YmezXQdHT<o^<dPOK
+zBJ+#wG%xu9->33V$o*8INxZP6amw61zcO>A{NO*MLco?^wPO@3$u4^)ws6AKOHhoe
+z*{X6dD-Df3==LnVTK?|SrwZLka*KLOCpk0$$_DTU_2VDBq>2HnIQo#0;gWt2)4J=(
+z<EixLhu=JEC=;V=<vV@7H^-;PP7e%tb7J?b=7sLGnl|}5GS;Qea%{VOY5H)QrHo`v
+z_`Y&!o=Dir-&4z|L9NwEvj>Pv@@l*E4O_VmMK5eIXaquL*9lz{@;dXecf5GeueGus
+zJD#ExZ|S9}B_-BHY&iC85`^|L(OTVYG&|n&aRLjZT{yoK#~m!+&I#pPYFpWmI*br1
+zUo?c^?XI3Qq3)CJ;jpMOy%@!t6?ods_^KH<rQ|_mb$VAX<H&DHt{T2hP;-_<nvqy~
+z2CnyEmaY2OYQq2)s=iqoXjtDWxT_wCW=Y2HXJBe3-Kv~Ud&PZL#&#lgRwJE@S}$mJ
+zYaCDtopW%X2)qr(xt75f4|-Lrx*oJMGrvo$QnAbWrCDV&XDm`^P)Ro}?ay3<+sUhd
+z>PKl<d6b4^kOaL`0A&Ce7+4?~xJoM17BCGW7+GZEvGKbI0D!|GATd+n7|6m1wT3Zr
+zGgw<HaD$vb1T#0Qo~xg?M*tq@?W({B^8A2I+z68Z0xrbW8z*Ap?H;PY0kZ$#tlUiJ
+zac=kkZ?}JwWB)^-|0SZJ$bWiZ0r<FG|8-aAuT}n9fIoPW9|2-OMMZT`K}ktj)qx+O
+zqynlbsQo4Xu5FV5k)J;pfJ2}p0099>05by#03ah7NZ3^OG4ZFr_gtMB8<o(~8t_|1
+z%^fl(lb2qQ2YiRaaAmAzev9nQ$8%Kd5684Z%k@4kX<l-p%+m{p7i~7@Jjo|oYr*=k
+zc9<U37%xCE_;QLjegpH!^w)MOCMK2o<{y0>w38pe-j$5EWgQbn+vcJOb7m&Rnb>Up
+zbsxBr{bFh68v5DRt%72YR}q<`=M-4ZdaB8vapP*k`Ri`l2~5+W#D2E-`ZT}E4vM%P
+z5(_+&aN{;>ox0b1Iutwp#nZ<ML9}|++{e^7chOpjv(q<sH(+Y5Kh^u=tHQUbVUi-5
+z+Bx_e8ZbIO2bD9OSA{94<&P;sUGbqW3o`)FBH}(s+yhZZ#zC>e_+UI(dx(vu6xyJQ
+zGag<Xf~;ieOXdWLy+8KFV8oXoksAAd&paaL78A4orcNOJG;wS{p27`-gHQlC{MjBy
+z^LJzq01{DsH+j{(^E~{rz*|~HHE<>Ix`R|1Z()0#nJ5qMA#D)K;?P<wx68zg_Y?76
+z=)g@@!5~!W3uxv`?a>X7qAT;M0%#G_r<R<btw+ThY{us&M0L{S2=VlUEEGVd*H<~{
+zx>!1WRaStDiy9=W&Y@*~*~=V3{RaBX_wHn!D0+DYh2)v+78blpllv;Q1ErU^oI_h7
+zTB3mas!g@Ix<N1br!6$byS9lDhBKc^*;-;k_@g7tkeYg*MVas(IAfEWvn>ws%u(BB
+za%-pNF7)}y*6=OfycTQzt`l4@YxfZ{9KOzKR}mvf>d#2RDq!@)TVTL9F21wow(MRe
+Zn5xv}jAoOWawm3cl%&wt$Jz1fe*jC1EUW+k
+
+literal 0
+HcmV?d00001
+
+-- 
+2.47.3
+
