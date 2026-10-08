@@ -1,3 +1,5 @@
+> ⚠️ Please migrate to [DFRoot](https://github.com/diabl0w/DFRoot).
+
 # GhostLock (CVE-2026-43499) for Galaxy Z Fold 8 (h8q) / Fold 8 Ultra (q8q)
 Most of this code is based on [@polygraphene's](https://github.com/polygraphene/CyberMeowfia) fork of the [original](https://github.com/NebuSec/CyberMeowfia). 
 Heavy modifications were required because the main primer used (`select()`) for most published variants of the exploit does not properly align with the `rt_mutex_waiter` struct on these 6.12 Samsung targets. `io_submit()` is used instead.
