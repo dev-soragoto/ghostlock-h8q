@@ -1,4 +1,11 @@
-> ⚠️ Please migrate to [DFRoot](https://github.com/diabl0w/DFRoot).
+# ⚠️WARNING
+## This project is deprecated. Please use [DFRoot](https://github.com/diabl0w/DFRoot) instead.
+
+**Do not use this release unless you specifically need CVE-2026-43499.**
+
+DFRoot uses CVE-2026-43284 and provides a much more generic and maintainable rooting method without per-build offset adaptation.
+
+This project is no longer recommended for normal use and may not receive further updates.
 
 # GhostLock (CVE-2026-43499) for Galaxy Z Fold 8 (h8q) / Fold 8 Ultra (q8q)
 Most of this code is based on [@polygraphene's](https://github.com/polygraphene/CyberMeowfia) fork of the [original](https://github.com/NebuSec/CyberMeowfia). 
